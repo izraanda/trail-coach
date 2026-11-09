@@ -74,69 +74,43 @@ if menu == "Dashboard Utama":
     st.metric(label="Race Penutup", value="SLU (30K/50K)", delta="Desember 2027")
 
   st.info(
-      "💡 **Tips Coach:** Fokuskan bulan-bulan awal ini pada *Base Building* dan"
-      " konsistensi latihan *strength* eksentrik untuk persiapan turunan curam"
-      " (*downhill*)."
+      "💡 **Tips Coach:** Fokuskan minggu-minggu awal ini untuk membangun"
+      " kembali konsistensi setelah jeda kesibukan."
   )
 
 # ==========================================
 # 2. MENU: RENCANA MINGGU INI (AI COACH EVALUATION)
 # ==========================================
 elif menu == "Rencana Minggu Ini":
-  st.subheader("🤖 AI Coach: Evaluasi & Rencana Minggu Ini")
+  st.subheader("🤖 AI Coach: Rencana Latihan Minggu Ini")
   st.markdown(
-      "Menu ini menganalisis hasil latihan Anda sebelumnya dan memberikan"
-      " rekomendasi porsi latihan untuk pekan ini."
+      "Disesuaikan berdasarkan grafik rekapitulasi Anda yang sempat jeda"
+      " karena kesibukan[span_1](start_span)[span_1](end_span)."
   )
 
-  # Analisis Data Sebelumnya secara Otomatis
-  total_sesi = len(st.session_state.df_lari)
-
-  if total_sesi > 0:
-    avg_rpe = st.session_state.df_lari["RPE"].mean()
-    total_elev_mingguan = st.session_state.df_lari["Elevation (m+)"].sum()
-
-    st.success(
-        f"📊 **Evaluasi Performa Terakhir:** Berdasarkan {total_sesi} sesi lari"
-        f" yang tercatat, rata-rata tingkat kelelahan (RPE) Anda berada di angka"
-        f" **{avg_rpe:.1f}/10** dengan total akumulasi elevasi **+{total_elev_mingguan} m**."
-    )
-
-    if avg_rpe > 7.5:
-      st.warning(
-          "⚠️ **Catatan AI Coach:** Rata-rata tingkat kelelahan (RPE) Anda"
-          " cukup tinggi minggu lalu. Disarankan untuk memperbanyak *Easy Run*"
-          " atau menambah hari istirahat (*Recovery*) minggu ini agar terhindar"
-          " dari *overtraining*."
-      )
-    else:
-      st.info(
-          "✨ **Catatan AI Coach:** Beban latihan Anda terpantau stabil dan"
-          " terkontrol. Minggu ini Anda siap meningkatkan sedikit volume"
-          " *Trail Run* atau *Long Run*."
-      )
-  else:
-    st.info(
-        "ℹ️ Belum ada data latihan tercatat. Mulailah mencatat sesi lari Anda"
-        " agar AI Coach dapat memberikan evaluasi yang dipersonalisasi!"
-    )
+  st.warning(
+      "🔄 **Fase Restart (Mulai Kembali):** Grafik Strava menunjukkan volume"
+      " latihan sempat di angka 0 km[span_2](start_span)[span_2](end_span). Fokus minggu ini **bukan**"
+      " mengejar jarak jauh, melainkan mengembalikan konsistensi dan adaptasi"
+      " otot secara perlahan."
+  )
 
   st.divider()
 
-  st.markdown("### 📋 Jadwal Rekomendasi Mingguan (AI Recommendation)")
+  st.markdown("### 📋 Jadwal Rekomendasi Mingguan (Fokus Kesibukan & Restart)")
   st.markdown(
-      "Berikut adalah panduan struktur latihan yang direkomendasikan untuk"
-      " Anda minggu ini:"
+      "Berikut adalah porsi latihan yang realistis dan ramah waktu untuk Anda"
+      " minggu ini:"
   )
 
   st.markdown("""
-    * **Senin:** 🛌 *Rest Day* / Istirahat Total (Pemulihan otot pasca akhir pekan).
-    * **Selasa:** 💪 *Strength Training* Rumah (Fokus Kaki & Eksentrik: Bulgarian Split Squat, Calf Raises) + 🟢 *Easy Run* (6-8 KM).
-    * **Rabu:** ⚡ *Tempo / Interval Run* (Melatih kapasitas VO2Max & kecepatan jelajah).
-    * **Kamis:** 💪 *Strength Training* Rumah (Fokus Core & Stabilitas: Plank, Side Plank, Glute Bridges).
-    * **Jumat:** 🛌 *Recovery Run* Sangat Santai atau Istirahat.
-    * **Sabtu:** ⛰️ *Trail Run / Long Run* (Fokus simulasi elevasi dan *power hiking* untuk persiapan MSR/DCR).
-    * **Minggu:** 🚶 *Active Recovery* / Jalan santai ringan.
+    * **Senin:** 🛌 **Istirahat Total** (Menyesuaikan kesibukan kerja).
+    * **Selasa:** 💪 **Strength Training Rumah** (20 menit: *Plank*, *Calf Raises*, *Glute Bridges*) — tanpa alat.
+    * **Rabu:** 🟢 **Easy / Recovery Run Pendek** (5-6 KM dengan *pace* santai, fokus detak jantung rendah).
+    * **Kamis:** 🛌 **Istirahat / *Stretching* Ringan** di rumah.
+    * **Jumat:** 💪 **Strength Training Rumah** (20 menit: *Bulgarian Split Squat*, *Side Plank*).
+    * **Sabtu:** ⛰️ **Long Run / Trail Run Santai** (10-12 KM dengan elevasi moderat untuk mulai membiasakan kaki).
+    * **Minggu:** 🛌 **Istirahat Total** untuk pemulihan optimal menjelang minggu depan.
     """)
 
 # ==========================================
@@ -164,25 +138,22 @@ elif menu == "Catat Lari":
     col1, col2 = st.columns(2)
     with col1:
       jarak_lari = st.number_input(
-          "Jarak (KM)", min_value=0.0, format="%.2f", value=10.0
+          "Jarak (KM)", min_value=0.0, format="%.2f", value=6.0
       )
       durasi_lari = st.number_input(
-          "Durasi Moving Time (Menit)", min_value=1, value=60
+          "Durasi Moving Time (Menit)", min_value=1, value=40
       )
     with col2:
       elev_lari = st.number_input(
-          "Elevation Gain (m+)", min_value=0, value=100
+          "Elevation Gain (m+)", min_value=0, value=50
       )
       rpe_lari = st.slider(
-          "Tingkat Capek / RPE (Skala 1-10)", min_value=1, max_value=10, value=5
+          "Tingkat Capek / RPE (Skala 1-10)", min_value=1, max_value=10, value=4
       )
 
     catatan_lari = st.text_area(
         "Catatan Latihan / Kondisi Kaki",
-        placeholder=(
-            "Contoh: Latihan stabil, fokus penjagaan detak jantung atau"
-            " tanjakan."
-        ),
+        placeholder="Contoh: Sesi restart pertama setelah sibuk, kaki terasa aman.",
     )
 
     submit_lari = st.form_submit_button("Simpan Data Lari")
@@ -305,7 +276,7 @@ elif menu == "Rekapitulasi":
   with col2:
     st.metric(label="Total Elevation Gain", value=f"+{total_elevasi} m")
   with col3:
-    st.metric(label="Total Sesi Lari", value=f"{total_sesi_sessi_lari} Sesi" if 'total_sesi_sessi_lari' else f"{total_sesi_lari} Sesi")
+    st.metric(label="Total Sesi Lari", value=f"{total_sesi_lari} Sesi")
   with col4:
     st.metric(label="Total Sesi Strength", value=f"{total_sesi_strength} Sesi")
 
