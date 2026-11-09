@@ -79,201 +79,69 @@ if menu == "Dashboard Utama":
   )
 
 # ==========================================
-# 2. MENU: CATAT LARI (6 JENIS LARI)
+# 2. MENU: CATAT LARI (DROPDOWN TUNGGAL)
 # ==========================================
 elif menu == "Catat Lari":
-  st.subheader("Catat Sesi Lari Berdasarkan Jenisnya")
-  st.markdown("Pilih tab di bawah ini sesuai dengan jenis lari Anda:")
+  st.subheader("Catat Sesi Lari")
+  st.markdown("Pilih jenis lari dan masukkan detail latihan Anda di bawah ini:")
 
-  tab_easy, tab_speed, tab_long, tab_trail = st.tabs(
-      ["Easy & Recovery", "Tempo & Interval", "Long Run", "Trail Run"]
-  )
+  with st.form("form_catat_lari"):
+    tgl_lari = st.date_input("Tanggal Latihan", datetime.date.today())
 
-  # --- TAB 1: EASY & RECOVERY RUN ---
-  with tab_easy:
-    st.markdown("### Catat Easy Run / Recovery Run")
-    with st.form("form_easy_recovery"):
-      tgl_er = st.date_input("Tanggal Latihan", datetime.date.today())
-      jenis_er = st.selectbox(
-          "Pilih Sub-Kategori", ["Easy Run", "Recovery Run"]
+    # Pilihan jenis lari disatukan dalam dropdown tunggal
+    jenis_lari = st.selectbox(
+        "Pilih Jenis Lari",
+        [
+            "Easy Run",
+            "Recovery Run",
+            "Tempo Run",
+            "Interval Run",
+            "Long Run",
+            "Trail Run",
+        ],
+    )
+
+    col1, col2 = st.columns(2)
+    with col1:
+      jarak_lari = st.number_input(
+          "Jarak (KM)", min_value=0.0, format="%.2f", value=10.0
+      )
+      durasi_lari = st.number_input(
+          "Durasi Moving Time (Menit)", min_value=1, value=60
+      )
+    with col2:
+      elev_lari = st.number_input(
+          "Elevation Gain (m+)", min_value=0, value=100
+      )
+      rpe_lari = st.slider(
+          "Tingkat Capek / RPE (Skala 1-10)", min_value=1, max_value=10, value=5
       )
 
-      c1, c2 = st.columns(2)
-      with c1:
-        jarak_er = st.number_input(
-            "Jarak (KM)", min_value=0.0, format="%.2f", value=8.0
-        )
-        durasi_er = st.number_input(
-            "Durasi Moving Time (Menit)", min_value=1, value=45
-        )
-      with c2:
-        elev_er = st.number_input(
-            "Elevation Gain (Opsional, m+)", min_value=0, value=30
-        )
-        rpe_er = st.slider(
-            "Tingkat Capek / RPE (1-10)", min_value=1, max_value=10, value=3
-        )
+    catatan_lari = st.text_area(
+        "Catatan Latihan / Kondisi Kaki",
+        placeholder=(
+            "Contoh: Latihan stabil, fokus penjagaan detak jantung atau"
+            " tanjakan."
+        ),
+    )
 
-      catatan_er = st.text_area(
-          "Catatan Fisik / Kondisi Kaki",
-          placeholder=(
-              "Contoh: Kaki terasa segar, detak jantung stabil di Zona 2."
-          ),
+    submit_lari = st.form_submit_button("Simpan Data Lari")
+
+    if submit_lari:
+      new_data = {
+          "Tanggal": str(tgl_lari),
+          "Kategori": jenis_lari,
+          "Jarak (KM)": jarak_lari,
+          "Durasi (Min)": durasi_lari,
+          "Elevation (m+)": elev_lari,
+          "RPE": rpe_lari,
+          "Catatan": catatan_lari,
+      }
+      st.session_state.df_lari = pd.concat(
+          [st.session_state.df_lari, pd.DataFrame([new_data])],
+          ignore_index=True,
       )
-      submit_er = st.form_submit_button("Simpan Easy/Recovery Run")
-
-      if submit_er:
-        new_data = {
-            "Tanggal": str(tgl_er),
-            "Kategori": jenis_er,
-            "Jarak (KM)": jarak_er,
-            "Durasi (Min)": durasi_er,
-            "Elevation (m+)": elev_er,
-            "RPE": rpe_er,
-            "Catatan": catatan_er,
-        }
-        st.session_state.df_lari = pd.concat(
-            [st.session_state.df_lari, pd.DataFrame([new_data])],
-            ignore_index=True,
-        )
-        st.success(f"Berhasil menyimpan data {jenis_er}!")
-
-  # --- TAB 2: TEMPO & INTERVAL ---
-  with tab_speed:
-    st.markdown("### Catat Tempo Run / Interval Run")
-    with st.form("form_tempo_interval"):
-      tgl_sp = st.date_input("Tanggal Latihan Speed", datetime.date.today())
-      jenis_sp = st.selectbox(
-          "Pilih Sub-Kategori", ["Tempo Run", "Interval Run"]
-      )
-
-      s1, s2 = st.columns(2)
-      with s1:
-        jarak_sp = st.number_input(
-            "Total Jarak (KM)", min_value=0.0, format="%.2f", value=6.0
-        )
-        durasi_sp = st.number_input(
-            "Durasi Total (Menit)", min_value=1, value=40
-        )
-      with s2:
-        elev_sp = st.number_input(
-            "Elevation Gain (Opsional, m+)", min_value=0, value=20
-        )
-        rpe_sp = st.slider(
-            "Tingkat Capek / RPE (1-10)", min_value=1, max_value=10, value=8
-        )
-
-      catatan_sp = st.text_area(
-          "Detail Menu & Catatan",
-          placeholder=(
-              "Contoh: 5 x 400m interval cepat dengan jog pemulihan."
-          ),
-      )
-      submit_sp = st.form_submit_button("Simpan Speed Work")
-
-      if submit_sp:
-        new_data = {
-            "Tanggal": str(tgl_sp),
-            "Kategori": jenis_sp,
-            "Jarak (KM)": jarak_sp,
-            "Durasi (Min)": durasi_sp,
-            "Elevation (m+)": elev_sp,
-            "RPE": rpe_sp,
-            "Catatan": catatan_sp,
-        }
-        st.session_state.df_lari = pd.concat(
-            [st.session_state.df_lari, pd.DataFrame([new_data])],
-            ignore_index=True,
-        )
-        st.success(f"Berhasil menyimpan data {jenis_sp}!")
-
-  # --- TAB 3: LONG RUN ---
-  with tab_long:
-    st.markdown("### Catat Long Run (Lari Jarak Jauh)")
-    with st.form("form_longrun"):
-      tgl_lr = st.date_input("Tanggal Long Run", datetime.date.today())
-
-      l1, l2 = st.columns(2)
-      with l1:
-        jarak_lr = st.number_input(
-            "Jarak (KM)", min_value=0.0, format="%.2f", value=16.0
-        )
-        durasi_lr = st.number_input(
-            "Durasi Moving Time (Menit)", min_value=1, value=120
-        )
-      with l2:
-        elev_lr = st.number_input(
-            "Elevation Gain (m+)", min_value=0, value=300
-        )
-        rpe_lr = st.slider(
-            "Tingkat Capek / RPE (1-10)", min_value=1, max_value=10, value=6
-        )
-
-      catatan_lr = st.text_area(
-          "Catatan Nutrisi & Fisik",
-          placeholder="Contoh: Uji coba minum gel energi, kaki stabil.",
-      )
-      submit_lr = st.form_submit_button("Simpan Long Run")
-
-      if submit_lr:
-        new_data = {
-            "Tanggal": str(tgl_lr),
-            "Kategori": "Long Run",
-            "Jarak (KM)": jarak_lr,
-            "Durasi (Min)": durasi_lr,
-            "Elevation (m+)": elev_lr,
-            "RPE": rpe_lr,
-            "Catatan": catatan_lr,
-        }
-        st.session_state.df_lari = pd.concat(
-            [st.session_state.df_lari, pd.DataFrame([new_data])],
-            ignore_index=True,
-        )
-        st.success("Berhasil menyimpan Long Run!")
-
-  # --- TAB 4: TRAIL RUN ---
-  with tab_trail:
-    st.markdown("### Catat Trail Run (Lari Lintas Alam)")
-    with st.form("form_trailrun"):
-      tgl_tr = st.date_input("Tanggal Trail Run", datetime.date.today())
-
-      tr1, tr2 = st.columns(2)
-      with tr1:
-        jarak_tr = st.number_input(
-            "Jarak (KM)", min_value=0.0, format="%.2f", value=12.0
-        )
-        durasi_tr = st.number_input(
-            "Durasi Moving Time (Menit)", min_value=1, value=150
-        )
-      with tr2:
-        elev_tr = st.number_input(
-            "Elevation Gain (Wajib, m+)", min_value=0, value=1200
-        )
-        rpe_tr = st.slider(
-            "Tingkat Capek / RPE (1-10)", min_value=1, max_value=10, value=8
-        )
-
-      catatan_tr = st.text_area(
-          "Catatan Jalur & Uji Coba Downhill",
-          placeholder="Contoh: Power hiking di tanjakan ekstrem.",
-      )
-      submit_tr = st.form_submit_button("Simpan Trail Run")
-
-      if submit_tr:
-        new_data = {
-            "Tanggal": str(tgl_tr),
-            "Kategori": "Trail Run",
-            "Jarak (KM)": jarak_tr,
-            "Durasi (Min)": durasi_tr,
-            "Elevation (m+)": elev_tr,
-            "RPE": rpe_tr,
-            "Catatan": catatan_tr,
-        }
-        st.session_state.df_lari = pd.concat(
-            [st.session_state.df_lari, pd.DataFrame([new_data])],
-            ignore_index=True,
-        )
-        st.success("Berhasil menyimpan Trail Run!")
+      st.success(f"Berhasil menyimpan data {jenis_lari}!")
 
 # ==========================================
 # 3. MENU: CATAT STRENGTH
