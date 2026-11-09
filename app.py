@@ -85,12 +85,12 @@ elif menu == "Rencana Minggu Ini":
   st.subheader("🤖 AI Coach: Rencana Latihan Minggu Ini")
   st.markdown(
       "Disesuaikan berdasarkan grafik rekapitulasi Anda yang sempat jeda"
-      " karena kesibukan[span_1](start_span)[span_1](end_span)."
+      " karena kesibukan[span_0](start_span)[span_0](end_span)."
   )
 
   st.warning(
       "🔄 **Fase Restart (Mulai Kembali):** Grafik Strava menunjukkan volume"
-      " latihan sempat di angka 0 km[span_2](start_span)[span_2](end_span). Fokus minggu ini **bukan**"
+      " latihan sempat di angka 0 km[span_1](start_span)[span_1](end_span). Fokus minggu ini **bukan**"
       " mengejar jarak jauh, melainkan mengembalikan konsistensi dan adaptasi"
       " otot secara perlahan."
   )
@@ -298,7 +298,21 @@ elif menu == "Rekapitulasi":
 # 6. MENU: KALENDER RACE
 # ==========================================
 elif menu == "Kalender Race":
-  st.subheader("Jadwal Target Race Musim 2027")
+  st.subheader("Jadwal Target Race & Riwayat")
+
+  st.markdown("### 🏅 Riwayat Sesi Race Sebelumnya")
+  st.success(
+      "**UGM Trail Run (Kategori 15K)**\n"
+      "- **Waktu Finish:** 2 Jam 40 Menit 13 Detik\n"
+      "- **Elevation Gain:** +539 Meter\n"
+      "- *Status: Benchmark awal yang sangat baik untuk fondasi trail running"
+      " Anda!*"
+  )
+
+  st.divider()
+
+  Meta_Race = "Jadwal Target Race Musim 2027"
+  st.subheader(Meta_Race)
   st.markdown("""
     * **Race 1 (Juni 2027):** MSR 20K (Elevasi 2.290m+) ATAU DCR 25K (Elevasi 2.330m+)
     * **Race 2 / A-Race (September 2027):** BDG100 Kategori 42K *(Puncak Target Musim Ini)*
