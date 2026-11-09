@@ -219,3 +219,4 @@ elif menu == "📝 Catat Lari (Workout Log)":
             ignore_index=True,
         )
         st.success("Berhasil menyimpan data Trail Run!")
+ 
