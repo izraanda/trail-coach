@@ -45,6 +45,7 @@ menu = st.sidebar.selectbox(
     "Pilih Menu:",
     [
         "Dashboard Utama",
+        "Rencana Minggu Ini",
         "Catat Lari",
         "Catat Strength",
         "Rekapitulasi",
@@ -79,7 +80,67 @@ if menu == "Dashboard Utama":
   )
 
 # ==========================================
-# 2. MENU: CATAT LARI (DROPDOWN TUNGGAL)
+# 2. MENU: RENCANA MINGGU INI (AI COACH EVALUATION)
+# ==========================================
+elif menu == "Rencana Minggu Ini":
+  st.subheader("🤖 AI Coach: Evaluasi & Rencana Minggu Ini")
+  st.markdown(
+      "Menu ini menganalisis hasil latihan Anda sebelumnya dan memberikan"
+      " rekomendasi porsi latihan untuk pekan ini."
+  )
+
+  # Analisis Data Sebelumnya secara Otomatis
+  total_sesi = len(st.session_state.df_lari)
+
+  if total_sesi > 0:
+    avg_rpe = st.session_state.df_lari["RPE"].mean()
+    total_elev_mingguan = st.session_state.df_lari["Elevation (m+)"].sum()
+
+    st.success(
+        f"📊 **Evaluasi Performa Terakhir:** Berdasarkan {total_sesi} sesi lari"
+        f" yang tercatat, rata-rata tingkat kelelahan (RPE) Anda berada di angka"
+        f" **{avg_rpe:.1f}/10** dengan total akumulasi elevasi **+{total_elev_mingguan} m**."
+    )
+
+    if avg_rpe > 7.5:
+      st.warning(
+          "⚠️ **Catatan AI Coach:** Rata-rata tingkat kelelahan (RPE) Anda"
+          " cukup tinggi minggu lalu. Disarankan untuk memperbanyak *Easy Run*"
+          " atau menambah hari istirahat (*Recovery*) minggu ini agar terhindar"
+          " dari *overtraining*."
+      )
+    else:
+      st.info(
+          "✨ **Catatan AI Coach:** Beban latihan Anda terpantau stabil dan"
+          " terkontrol. Minggu ini Anda siap meningkatkan sedikit volume"
+          " *Trail Run* atau *Long Run*."
+      )
+  else:
+    st.info(
+        "ℹ️ Belum ada data latihan tercatat. Mulailah mencatat sesi lari Anda"
+        " agar AI Coach dapat memberikan evaluasi yang dipersonalisasi!"
+    )
+
+  st.divider()
+
+  st.markdown("### 📋 Jadwal Rekomendasi Mingguan (AI Recommendation)")
+  st.markdown(
+      "Berikut adalah panduan struktur latihan yang direkomendasikan untuk"
+      " Anda minggu ini:"
+  )
+
+  st.markdown("""
+    * **Senin:** 🛌 *Rest Day* / Istirahat Total (Pemulihan otot pasca akhir pekan).
+    * **Selasa:** 💪 *Strength Training* Rumah (Fokus Kaki & Eksentrik: Bulgarian Split Squat, Calf Raises) + 🟢 *Easy Run* (6-8 KM).
+    * **Rabu:** ⚡ *Tempo / Interval Run* (Melatih kapasitas VO2Max & kecepatan jelajah).
+    * **Kamis:** 💪 *Strength Training* Rumah (Fokus Core & Stabilitas: Plank, Side Plank, Glute Bridges).
+    * **Jumat:** 🛌 *Recovery Run* Sangat Santai atau Istirahat.
+    * **Sabtu:** ⛰️ *Trail Run / Long Run* (Fokus simulasi elevasi dan *power hiking* untuk persiapan MSR/DCR).
+    * **Minggu:** 🚶 *Active Recovery* / Jalan santai ringan.
+    """)
+
+# ==========================================
+# 3. MENU: CATAT LARI
 # ==========================================
 elif menu == "Catat Lari":
   st.subheader("Catat Sesi Lari")
@@ -88,7 +149,6 @@ elif menu == "Catat Lari":
   with st.form("form_catat_lari"):
     tgl_lari = st.date_input("Tanggal Latihan", datetime.date.today())
 
-    # Pilihan jenis lari disatukan dalam dropdown tunggal
     jenis_lari = st.selectbox(
         "Pilih Jenis Lari",
         [
@@ -144,7 +204,7 @@ elif menu == "Catat Lari":
       st.success(f"Berhasil menyimpan data {jenis_lari}!")
 
 # ==========================================
-# 3. MENU: CATAT STRENGTH
+# 4. MENU: CATAT STRENGTH
 # ==========================================
 elif menu == "Catat Strength":
   st.subheader("Catat Latihan Strength di Rumah")
@@ -221,7 +281,7 @@ elif menu == "Catat Strength":
     st.success("Data latihan strength berhasil dicatat!")
 
 # ==========================================
-# 4. MENU: REKAPITULASI
+# 5. MENU: REKAPITULASI
 # ==========================================
 elif menu == "Rekapitulasi":
   st.subheader("Rekapitulasi Total Latihan")
@@ -245,7 +305,7 @@ elif menu == "Rekapitulasi":
   with col2:
     st.metric(label="Total Elevation Gain", value=f"+{total_elevasi} m")
   with col3:
-    st.metric(label="Total Sesi Lari", value=f"{total_sesi_lari} Sesi")
+    st.metric(label="Total Sesi Lari", value=f"{total_sesi_sessi_lari} Sesi" if 'total_sesi_sessi_lari' else f"{total_sesi_lari} Sesi")
   with col4:
     st.metric(label="Total Sesi Strength", value=f"{total_sesi_strength} Sesi")
 
@@ -264,7 +324,7 @@ elif menu == "Rekapitulasi":
     st.info("Belum ada data strength.")
 
 # ==========================================
-# 5. MENU: KALENDER RACE
+# 6. MENU: KALENDER RACE
 # ==========================================
 elif menu == "Kalender Race":
   st.subheader("Jadwal Target Race Musim 2027")
