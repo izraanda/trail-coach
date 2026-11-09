@@ -1,4 +1,5 @@
 import datetime
+import pandas as pd
 import streamlit as st
 
 # Konfigurasi Halaman Web
@@ -6,10 +7,36 @@ st.set_page_config(
     page_title="Trail Running Personal Coach", page_icon="🏃‍♂️", layout="wide"
 )
 
+# Inisialisasi Database Memori Sementara di Sesi
+if "df_lari" not in st.session_state:
+  st.session_state.df_lari = pd.DataFrame(
+      columns=[
+          "Tanggal",
+          "Kategori",
+          "Jarak (KM)",
+          "Durasi (Min)",
+          "Elevation (m+)",
+          "RPE",
+          "Catatan",
+      ]
+  )
+
+if "df_strength" not in st.session_state:
+  st.session_state.df_strength = pd.DataFrame(
+      columns=[
+          "Tanggal",
+          "Jenis Sesi",
+          "Menu Dilakukan",
+          "Durasi (Min)",
+          "Catatan",
+      ]
+  )
+
 # Judul Aplikasi
 st.title("🏔️ Trail Running Personal Coach & Log")
 st.markdown(
-    "*Aplikasi pelacak latihan pribadi untuk persiapan MSR/DCR 2027, BDG100, & SLU.*"
+    "*Aplikasi pelacak latihan pribadi untuk persiapan MSR/DCR 2027, BDG100, &"
+    " SLU.*"
 )
 
 # Sidebar Menu Navigasi
@@ -20,6 +47,7 @@ menu = st.sidebar.selectbox(
         "📊 Dashboard Utama",
         "📝 Catat Lari (Workout Log)",
         "💪 Catat Strength (Tanpa Alat)",
+        "📈 Rekapitulasi & Riwayat",
         "🏁 Kalender & Target Race",
     ],
 )
@@ -89,6 +117,19 @@ elif menu == "📝 Catat Lari (Workout Log)":
     submit_lari = st.form_submit_button("Simpan Data Lari")
 
     if submit_lari:
+      new_data = {
+          "Tanggal": str(tanggal_lari),
+          "Kategori": jenis_lari,
+          "Jarak (KM)": jarak_km,
+          "Durasi (Min)": durasi_menit,
+          "Elevation (m+)": elevasi_gain,
+          "RPE": rpe,
+          "Catatan": catatan_kaki,
+      }
+      st.session_state.df_lari = pd.concat(
+          [st.session_state.df_lari, pd.DataFrame([new_data])],
+          ignore_index=True,
+      )
       st.success(
           f"Berhasil menyimpan data {jenis_lari} sejauh {jarak_km} KM dengan"
           f" elevasi +{elevasi_gain}m!"
@@ -107,30 +148,48 @@ elif menu == "💪 Catat Strength (Tanpa Alat)":
       ["⏱️ Berbasis Waktu (Durasi)", "🔢 Berbasis Repetitif (Hitungan)"]
   )
 
+  list_terpilih = []
+
   with tab_waktu:
     st.markdown("### Latihan Berbasis Waktu")
-    plank = st.checkbox("Plank (Target: 3 Set x 45-60 detik)")
-    side_plank = st.checkbox(
-        "Side Plank (Target: 3 Set x 30-45 detik per sisi)"
-    )
+    p1 = st.checkbox("Plank (Target: 3 Set x 45-60 detik)")
+    p2 = st.checkbox("Side Plank (Target: 3 Set x 30-45 detik per sisi)")
+    if p1:
+      list_terpilih.append("Plank")
+    if p2:
+      list_terpilih.append("Side Plank")
     durasi_total_waktu = st.number_input(
-        "Estimasi Durasi Total Sesi Waktu (Menit)", min_value=1, value=15
+        "Estimasi Durasi Sesi Waktu (Menit)", min_value=1, value=15
     )
 
   with tab_repetitif:
     st.markdown("### Latihan Repetitif (Kaki, Core, & Stabilitas)")
-    bulgarian = st.checkbox(
+    r1 = st.checkbox(
         "Bulgarian Split Squat (Target: 3 Set x 10-12 reps/kaki)"
     )
-    s_l_rdl = st.checkbox(
+    r2 = st.checkbox(
         "Single-Leg Romanian Deadlift (Target: 3 Set x 10 reps/kaki)"
     )
-    calf_raises = st.checkbox("Calf Raises (Target: 3 Set x 20 reps)")
-    lunges = st.checkbox("Walking Lunges (Target: 3 Set x 16 langkah)")
-    glute_bridge = st.checkbox("Glute Bridges (Target: 3 Set x 15 reps)")
-    bird_dog = st.checkbox("Bird-Dog (Target: 3 Set x 10 reps/sisi)")
+    r3 = st.checkbox("Calf Raises (Target: 3 Set x 20 reps)")
+    r4 = st.checkbox("Walking Lunges (Target: 3 Set x 16 langkah)")
+    r5 = st.checkbox("Glute Bridges (Target: 3 Set x 15 reps)")
+    r6 = st.checkbox("Bird-Dog (Target: 3 Set x 10 reps/sisi)")
+
+    if r1:
+      list_terpilih.append("Bulgarian Split Squat")
+    if r2:
+      list_terpilih.append("Single-Leg RDL")
+    if r3:
+      list_terpilih.append("Calf Raises")
+    if r4:
+      list_terpilih.append("Walking Lunges")
+    if r5:
+      list_terpilih.append("Glute Bridges")
+    if r6:
+      list_terpilih.append("Bird-Dog")
+
     durasi_total_rep = st.number_input(
-        "Estimasi Durasi Total Sesi Repetitif (Menit)", min_value=1, value=20
+        "Estimasi Durasi Sesi Repetitif (Menit)", min_value=1, value=20
     )
 
   catatan_strength = st.text_area(
@@ -139,10 +198,75 @@ elif menu == "💪 Catat Strength (Tanpa Alat)":
   )
 
   if st.button("Simpan Data Strength"):
+    total_durasi = durasi_total_waktu + durasi_total_rep
+    menu_str = (
+        ", ".join(list_terpilih) if list_terpilih else "Latihan Umum Selesai"
+    )
+    new_str_data = {
+        "Tanggal": str(tanggal_str),
+        "Jenis Sesi": "Bodyweight Strength",
+        "Menu Dilakukan": menu_str,
+        "Durasi (Min)": total_durasi,
+        "Catatan": catatan_strength,
+    }
+    st.session_state.df_strength = pd.concat(
+        [st.session_state.df_strength, pd.DataFrame([new_str_data])],
+        ignore_index=True,
+    )
     st.success("Data latihan strength harian berhasil dicatat!")
 
 # ==========================================
-# 4. MENU: KALENDER & TARGET RACE
+# 4. MENU: REKAPITULASI & RIWAYAT
+# ==========================================
+elif menu == "📈 Rekapitulasi & Riwayat":
+  st.subheader("📈 Rekapitulasi Total Latihan")
+
+  # Ringkasan Angka (Metrik Total)
+  total_jarak = (
+      st.session_state.df_lari["Jarak (KM)"].sum()
+      if not st.session_state.df_lari.empty
+      else 0.0
+  )
+  total_elevasi = (
+      st.session_state.df_lari["Elevation (m+)"].sum()
+      if not st.session_state.df_lari.empty
+      else 0
+  )
+  total_sesi_lari = len(st.session_state.df_lari)
+  total_sesi_strength = len(st.session_state.df_strength)
+
+  col1, col2, col3, col4 = st.columns(4)
+  with col1:
+    st.metric(label="Total Jarak Lari", value=f"{total_jarak:.2f} KM")
+  with col2:
+    st.metric(label="Total Elevation Gain", value=f"+{total_elevasi} m")
+  with col3:
+    st.metric(label="Total Sesi Lari", value=f"{total_sesi_lari} Sesi")
+  with col4:
+    st.metric(label="Total Sesi Strength", value=f"{total_sesi_strength} Sesi")
+
+  st.divider()
+
+  # Tabel Riwayat Lari
+  st.markdown("### 🏃‍♂️ Riwayat Sesi Lari")
+  if not st.session_state.df_lari.empty:
+    st.dataframe(st.session_state.df_lari, use_container_width=True)
+  else:
+    st.info(
+        "Belum ada data lari yang dicatat. Silakan isi di menu *Catat Lari*."
+    )
+
+  st.markdown("### 💪 Riwayat Sesi Strength Rumah")
+  if not st.session_state.df_strength.empty:
+    st.dataframe(st.session_state.df_strength, use_container_width=True)
+  else:
+    st.info(
+        "Belum ada data strength yang dicatat. Silakan isi di menu *Catat"
+        " Strength*."
+    )
+
+# ==========================================
+# 5. MENU: KALENDER & TARGET RACE
 # ==========================================
 elif menu == "🏁 Kalender & Target Race":
   st.subheader("Jadwal Target Race Musim 2027")
