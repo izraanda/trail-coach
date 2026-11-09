@@ -84,15 +84,14 @@ if menu == "Dashboard Utama":
 elif menu == "Rencana Minggu Ini":
   st.subheader("🤖 AI Coach: Rencana Latihan Minggu Ini")
   st.markdown(
-      "Disesuaikan berdasarkan grafik rekapitulasi Anda yang sempat jeda"
-      " karena kesibukan[span_0](start_span)[span_0](end_span)."
+      "Disesuaikan berdasarkan rekapitulasi latihan Anda yang sempat jeda"
+      " karena kesibukan."
   )
 
   st.warning(
-      "🔄 **Fase Restart (Mulai Kembali):** Grafik Strava menunjukkan volume"
-      " latihan sempat di angka 0 km[span_1](start_span)[span_1](end_span). Fokus minggu ini **bukan**"
-      " mengejar jarak jauh, melainkan mengembalikan konsistensi dan adaptasi"
-      " otot secara perlahan."
+      "🔄 **Fase Restart (Mulai Kembali):** Fokus minggu ini **bukan** mengejar"
+      " jarak jauh, melainkan mengembalikan konsistensi dan adaptasi otot"
+      " secara perlahan."
   )
 
   st.divider()
@@ -252,10 +251,10 @@ elif menu == "Catat Strength":
     st.success("Data latihan strength berhasil dicatat!")
 
 # ==========================================
-# 5. MENU: REKAPITULASI
+# 5. MENU: REKAPITULASI (INTERAKTIF DENGAN GRAFIK & EDIT)
 # ==========================================
 elif menu == "Rekapitulasi":
-  st.subheader("Rekapitulasi Total Latihan")
+  st.subheader("📈 Rekapitulasi & Grafik Progres Latihan")
 
   total_jarak = (
       st.session_state.df_lari["Jarak (KM)"].sum()
@@ -282,15 +281,41 @@ elif menu == "Rekapitulasi":
 
   st.divider()
 
-  st.markdown("### Riwayat Sesi Lari")
+  # Grafik Visual Interaktif Jarak Lari Berdasarkan Tanggal
+  st.markdown("### 📊 Grafik Tren Jarak Lari")
   if not st.session_state.df_lari.empty:
-    st.dataframe(st.session_state.df_lari, use_container_width=True)
+    chart_data = st.session_state.df_lari.set_index("Tanggal")[["Jarak (KM)"]]
+    st.line_chart(chart_data)
+  else:
+    st.info(
+        "Belum cukup data untuk menampilkan grafik. Silakan catat sesi lari"
+        " terlebih dahulu."
+    )
+
+  st.divider()
+
+  # Tabel Riwayat Lari Interaktif (Bisa Diedit)
+  st.markdown("### 🏃‍♂️ Riwayat Sesi Lari (Interaktif / Bisa Diedit)")
+  if not st.session_state.df_lari.empty:
+    st.markdown(
+        "*Anda bisa langsung mengklik sel pada tabel di bawah untuk meralat"
+        " data jika ada yang salah ketik.*"
+    )
+    edited_df_lari = st.data_editor(
+        st.session_state.df_lari, use_container_width=True, key="editor_lari"
+    )
+    st.session_state.df_lari = edited_df_lari
   else:
     st.info("Belum ada data lari.")
 
-  st.markdown("### Riwayat Sesi Strength Rumah")
+  st.markdown("### 💪 Riwayat Sesi Strength Rumah")
   if not st.session_state.df_strength.empty:
-    st.dataframe(st.session_state.df_strength, use_container_width=True)
+    edited_df_strength = st.data_editor(
+        st.session_state.df_strength,
+        use_container_width=True,
+        key="editor_strength",
+    )
+    st.session_state.df_strength = edited_df_strength
   else:
     st.info("Belum ada data strength.")
 
@@ -311,8 +336,7 @@ elif menu == "Kalender Race":
 
   st.divider()
 
-  Meta_Race = "Jadwal Target Race Musim 2027"
-  st.subheader(Meta_Race)
+  st.subheader("Jadwal Target Race Musim 2027")
   st.markdown("""
     * **Race 1 (Juni 2027):** MSR 20K (Elevasi 2.290m+) ATAU DCR 25K (Elevasi 2.330m+)
     * **Race 2 / A-Race (September 2027):** BDG100 Kategori 42K *(Puncak Target Musim Ini)*
